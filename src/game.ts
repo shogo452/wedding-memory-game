@@ -10,7 +10,6 @@ interface Difficulties {
 const icons: string[] = ['💍', '🎂', '🕊️', '🌹', '🥂', '🎁', '👰', '🤵', '💐', '🔔', '🎉', '💖'];
 let cards: string[] = [];
 let flippedCards: HTMLDivElement[] = [];
-let score: number = 0;
 let timer: number = 0;
 let timerInterval: NodeJS.Timeout;
 let currentDifficulty: string = 'normal';
@@ -58,26 +57,27 @@ function flipCard(this: HTMLDivElement): void {
 function checkMatch(): void {
   const [card1, card2] = flippedCards;
   if (card1.dataset.icon === card2.dataset.icon) {
-      score += 10;
       card1.removeEventListener('click', flipCard);
       card2.removeEventListener('click', flipCard);
+      animateMatch(card1, card2);
   } else {
       card1.classList.remove('flipped', 'bg-white');
       card2.classList.remove('flipped', 'bg-white');
       (card1.querySelector('span') as HTMLSpanElement).style.visibility = 'hidden';
       (card2.querySelector('span') as HTMLSpanElement).style.visibility = 'hidden';
-      score = Math.max(0, score - 1);
   }
   flippedCards = [];
-  updateScore();
   checkGameEnd();
 }
 
-function updateScore(): void {
-  const scoreElement = document.getElementById('score');
-  if (scoreElement) {
-      scoreElement.textContent = `スコア: ${score}`;
-  }
+function animateMatch(card1: HTMLElement, card2: HTMLElement): void {
+  [card1, card2].forEach(card => {
+      card.style.transition = 'transform 0.3s ease-in-out';
+      card.style.transform = 'scale(1.1)';
+      setTimeout(() => {
+          card.style.transform = 'scale(1)';
+      }, 300);
+  });
 }
 
 function updateTimer(): void {
@@ -101,10 +101,8 @@ function checkGameEnd(): void {
 
 function showCelebration(): void {
   const celebrationElement = document.getElementById('celebration');
-  const finalScoreElement = document.getElementById('final-score');
-  if (celebrationElement && finalScoreElement) {
+  if (celebrationElement) {
       celebrationElement.classList.remove('hidden');
-      finalScoreElement.textContent = `最終スコア: ${score}`;
       createConfetti();
   }
 }
@@ -144,7 +142,6 @@ function startGame(difficulty: string): void {
   currentDifficulty = difficulty;
   const { grid, time } = difficulties[difficulty];
   timer = time;
-  score = 0;
   const gameBoard = document.getElementById('game-board');
   if (gameBoard) {
       gameBoard.innerHTML = '';
@@ -164,7 +161,6 @@ function startGame(difficulty: string): void {
           gameBoard.appendChild(card);
       });
 
-      updateScore();
       clearInterval(timerInterval);
       timerInterval = setInterval(updateTimer, 1000);
       updateTimer();
@@ -204,9 +200,7 @@ function initGame(): void {
       }
   });
 
-  // 初期化
   startGame('normal');
 }
 
-// DOMが読み込まれた後にゲームを初期化
 document.addEventListener('DOMContentLoaded', initGame);
