@@ -118,24 +118,38 @@ function createConfetti(): void {
   confettiContainer.style.height = '100%';
   confettiContainer.style.pointerEvents = 'none';
   confettiContainer.style.zIndex = '1000';
+  confettiContainer.style.overflow = 'hidden';
   document.body.appendChild(confettiContainer);
 
   for (let i = 0; i < 150; i++) {
       const confetti = document.createElement('div');
       confetti.classList.add('confetti');
-      confetti.style.left = `${Math.random() * 100}vw`;
-      confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
-      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-      confetti.style.width = `${Math.random() * 10 + 5}px`;
-      confetti.style.height = `${Math.random() * 10 + 5}px`;
-      confettiContainer.appendChild(confetti);
+
+    // 開始位置を画面上部の外に設定
+    confetti.style.left = `${Math.random() * 100}vw`;
+    confetti.style.top = '-5vh';
+    
+    // アニメーションの時間と遅延をランダム化
+    const duration = Math.random() * 3 + 2;
+    const delay = Math.random() * 5;
+    confetti.style.animationDuration = `${duration}s`;
+    confetti.style.animationDelay = `${delay}s`;
+    
+    // サイズと回転をランダム化
+    const size = Math.random() * 10 + 5;
+    confetti.style.width = `${size}px`;
+    confetti.style.height = `${size}px`;
+    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+    
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confettiContainer.appendChild(confetti);
   }
 
   setTimeout(() => {
       if (confettiContainer && confettiContainer.parentNode) {
           confettiContainer.parentNode.removeChild(confettiContainer);
       }
-  }, 5000);
+  }, 8000);
 }
 
 function startGame(difficulty: string): void {
